@@ -111,7 +111,7 @@ public class TierTagger implements ModInitializer {
 
         return TierCache.getPlayerRankings(uuid)
                 .map(rankings -> {
-                    PlayerInfo.Ranking ranking = rankings.get(mode.id());
+                    PlayerInfo.Ranking ranking = findRanking(rankings, mode.id());
                     Optional<PlayerInfo.NamedRanking> highest = PlayerInfo.getHighestRanking(rankings);
                     TierTaggerConfig.HighestMode highestMode = manager.getConfig().getHighestMode();
 
@@ -129,6 +129,28 @@ public class TierTagger implements ModInitializer {
                         }
                     }
                 });
+    }
+
+
+    private static PlayerInfo.Ranking findRanking(Map<String, PlayerInfo.Ranking> rankings, String modeId) {
+        PlayerInfo.Ranking exact = rankings.get(modeId);
+        if (exact != null) return exact;
+
+        String normalized = normalizeModeId(modeId);
+        for (Map.Entry<String, PlayerInfo.Ranking> entry : rankings.entrySet()) {
+            if (normalizeModeId(entry.getKey()).equals(normalized)) {
+                return entry.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private static String normalizeModeId(String id) {
+        if (id == null) return "";
+        return id.toLowerCase(Locale.ROOT)
+                .replace('-', '_')
+                .replace(' ', '_');
     }
 
     private static MutableComponent getTierText(int tier, int pos, boolean retired) {

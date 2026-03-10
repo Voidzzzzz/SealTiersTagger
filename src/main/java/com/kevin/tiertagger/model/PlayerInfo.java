@@ -1,5 +1,7 @@
 package com.kevin.tiertagger.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.kevin.tiertagger.TierCache;
@@ -74,14 +76,35 @@ public record PlayerInfo(String uuid, String name, Map<String, Ranking> rankings
 
     public static CompletableFuture<Map<String, Ranking>> getRankings(HttpClient client, UUID uuid) {
         String endpoint = TierTagger.getManager().getConfig().getApiUrl() + "/v2/profile/" + uuid + "/rankings";
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint)).GET().build();
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
+                .header("Accept", "application/json")
+                .header("User-Agent", "TierTagger/SealTiers")
+                .GET()
+                .build();
 
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenApply(s -> TierTagger.GSON.fromJson(s, new TypeToken<Map<String, Ranking>>() {}))
+                .thenApply(PlayerInfo::parseRankings)
                 .whenComplete((i, t) -> {
                     if (t != null) TierTagger.getLogger().warn("Error getting player rankings ({})", uuid, t);
                 });
+    }
+
+    private static Map<String, Ranking> parseRankings(String body) {
+        JsonElement parsed = TierTagger.GSON.fromJson(body, JsonElement.class);
+
+        if (parsed == null || parsed.isJsonNull()) {
+            return Collections.emptyMap();
+        }
+
+        if (parsed.isJsonObject()) {
+            JsonObject object = parsed.getAsJsonObject();
+            if (object.has("rankings") && object.get("rankings").isJsonObject()) {
+                return TierTagger.GSON.fromJson(object.get("rankings"), new TypeToken<Map<String, Ranking>>() {});
+            }
+        }
+
+        return TierTagger.GSON.fromJson(parsed, new TypeToken<Map<String, Ranking>>() {});
     }
 
     public static CompletableFuture<PlayerInfo> search(HttpClient client, String query) {
