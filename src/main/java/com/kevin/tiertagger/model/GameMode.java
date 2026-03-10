@@ -3,7 +3,6 @@ package com.kevin.tiertagger.model;
 import com.google.gson.JsonObject;
 import com.kevin.tiertagger.TierTagger;
 import it.unimi.dsi.fastutil.Pair;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 
@@ -38,29 +37,15 @@ public record GameMode(String id, String title) {
     }
 
     private Pair<Character, TextColor> iconAndColor() {
-        return switch (this.id) {
-            case "axe" -> Pair.of('\uE701', TextColor.fromLegacyFormat(ChatFormatting.GREEN));
-            case "mace" -> Pair.of('\uE702', TextColor.fromLegacyFormat(ChatFormatting.GRAY));
-            case "nethop", "neth_pot" -> Pair.of('\uE703', TextColor.fromRgb(0x7d4a40));
-            case "pot" -> Pair.of('\uE704', TextColor.fromRgb(0xff0000));
-            case "smp" -> Pair.of('\uE705', TextColor.fromRgb(0xeccb45));
-            case "sword" -> Pair.of('\uE706', TextColor.fromRgb(0xa4fdf0));
-            case "uhc" -> Pair.of('\uE707', TextColor.fromLegacyFormat(ChatFormatting.RED));
-            case "vanilla" -> Pair.of('\uE708', TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE));
-            case "bed" -> Pair.of('\uE801', TextColor.fromRgb(0xff0000));
-            case "bow" -> Pair.of('\uE802', TextColor.fromRgb(0x663d10));
-            case "creeper" -> Pair.of('\uE803', TextColor.fromLegacyFormat(ChatFormatting.GREEN));
-            case "debuff" -> Pair.of('\uE804', TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
-            case "dia_crystal" -> Pair.of('\uE805', TextColor.fromLegacyFormat(ChatFormatting.AQUA));
-            case "dia_smp" -> Pair.of('\uE806', TextColor.fromRgb(0x8c668b));
-            case "elytra" -> Pair.of('\uE807', TextColor.fromRgb(0x8d8db1));
-            case "manhunt" -> Pair.of('\uE808', TextColor.fromLegacyFormat(ChatFormatting.RED));
-            case "minecart" -> Pair.of('\uE809', TextColor.fromLegacyFormat(ChatFormatting.GRAY));
-            case "og_vanilla" -> Pair.of('\uE810', TextColor.fromLegacyFormat(ChatFormatting.GOLD));
-            case "speed" -> Pair.of('\uE811', TextColor.fromRgb(0x43a9d1));
-            case "trident" -> Pair.of('\uE812', TextColor.fromRgb(0x579b8c));
-            default -> Pair.of('•', TextColor.fromLegacyFormat(ChatFormatting.WHITE));
+        int color = switch (this.id.toLowerCase()) {
+            case "sword", "uhc", "nodebuff", "debuff" -> 0xff6a6e;
+            case "axe", "mace" -> 0x6aff6e;
+            case "pot", "nethop", "neth_pot" -> 0xff9900;
+            case "crystal", "dia_crystal", "smp", "vanilla" -> 0x8cc7ff;
+            default -> 0xffffff;
         };
+
+        return Pair.of('•', TextColor.fromRgb(color));
     }
 
     public Optional<Character> icon() {

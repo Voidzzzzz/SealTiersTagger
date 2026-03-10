@@ -18,7 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TierTaggerConfig implements Serializable {
     private boolean enabled = true;
-    private String gameMode = "vanilla";
+    private String gameMode = "";
     private boolean showRetired = true;
     private HighestMode highestMode = HighestMode.NOT_FOUND;
     private boolean showIcons = true;
@@ -33,7 +33,7 @@ public class TierTaggerConfig implements Serializable {
      * <p>the field was renamed to do a little trolling and force it setting to the default value in players' config</p>
      * <p>previous name(s): {@code baseUrl}</p>
      */
-    private String apiUrl = "https://mctiers.com/api";
+    private String apiUrl = "https://sealtiers.com/api";
 
     public GameMode getGameMode() {
         Optional<GameMode> opt = TierCache.findMode(this.gameMode);

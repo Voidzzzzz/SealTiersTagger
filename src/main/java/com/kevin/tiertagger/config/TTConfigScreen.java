@@ -65,7 +65,7 @@ public class TTConfigScreen extends TabbedConfigScreen<TierTaggerConfig> {
                             TierTagger.getManager().saveConfig();
                             TTConfigScreen.this.onClose();
                             TierCache.init();
-                            Ukutils.sendToast(Component.literal("Tierlist changed to " + t.getName() + "!"), Component.literal("Reloading tiers..."));
+                            Ukutils.sendToast(Component.literal("Provider changed to " + t.getName() + "!"), Component.literal("Reloading tiers..."));
                         }, !isCurrent);
                     })
                     .collect(Collectors.toList());

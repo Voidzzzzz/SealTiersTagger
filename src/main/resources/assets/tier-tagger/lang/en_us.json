@@ -1,10 +1,10 @@
 {
   "key.category.tiertagger.key": "TierTagger",
   "tiertagger.config": "Settings",
-  "tiertagger.config.tierlists": "Tierlists",
+  "tiertagger.config.tierlists": "Providers",
   "tiertagger.config.enabled": "Enabled",
   "tiertagger.config.gamemode": "Gamemode",
-  "tiertagger.config.gamemode.none": "§cFetching gamemodes failed, selected tierlist may be down.§r\nTierTagger will still work, but you can try restarting your game.",
+  "tiertagger.config.gamemode.none": "§cFetching gamemodes failed, selected provider may be down.§r\nTierTagger will still work, but you can try restarting your game.",
   "tiertagger.config.retired": "Show Retired",
   "tiertagger.config.highest": "Show Highest Tier",
   "tiertagger.config.highest.desc": "- Never: only display tiers in the selected gamemode\n- When Not Found: if a person isn't ranked in the current selected gamemode, show their highest tier overall\n- Always: display a person's highest tier, regardless of the gamemode",

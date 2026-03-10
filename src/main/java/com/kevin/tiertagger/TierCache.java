@@ -16,7 +16,7 @@ public class TierCache {
         try {
             GAMEMODES.clear();
             GAMEMODES.addAll(GameMode.fetchGamemodes(TierTagger.getClient()).get());
-            TierTagger.getLogger().info("Found {} tierlists: {}", GAMEMODES.size(), GAMEMODES.stream().map(GameMode::id).toList());
+            TierTagger.getLogger().info("Found {} modes: {}", GAMEMODES.size(), GAMEMODES.stream().map(GameMode::id).toList());
         } catch (ExecutionException e) {
             TierTagger.getLogger().error("Failed to load gamemodes!", e);
         } catch (InterruptedException e) {
