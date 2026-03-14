@@ -11,16 +11,42 @@ import java.util.concurrent.ExecutionException;
 public class TierCache {
     private static final List<GameMode> GAMEMODES = new ArrayList<>();
     private static final Map<UUID, Optional<Map<String, PlayerInfo.Ranking>>> TIERS = new ConcurrentHashMap<>();
+    private static final List<GameMode> FALLBACK_MODES = List.of(
+            new GameMode("melee", "Melee"),
+            new GameMode("endstone", "Endstone"),
+            new GameMode("crystal_sumo", "Crystal Sumo")
+    );
 
     public static void init() {
         try {
             GAMEMODES.clear();
             GAMEMODES.addAll(GameMode.fetchGamemodes(TierTagger.getClient()).get());
-            TierTagger.getLogger().info("Found {} tierlists: {}", GAMEMODES.size(), GAMEMODES.stream().map(GameMode::id).toList());
+
+            if (GAMEMODES.isEmpty()) {
+                useFallbackModes("Mode list was empty");
+            } else {
+                TierTagger.getLogger().info("Found {} modes: {}", GAMEMODES.size(), GAMEMODES.stream().map(GameMode::id).toList());
+            }
         } catch (ExecutionException e) {
-            TierTagger.getLogger().error("Failed to load gamemodes!", e);
+            useFallbackModes("Failed to load gamemodes", e.getCause() == null ? e : e.getCause());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            useFallbackModes("Loading gamemodes was interrupted", e);
+        }
+    }
+
+    private static void useFallbackModes(String reason) {
+        useFallbackModes(reason, null);
+    }
+
+    private static void useFallbackModes(String reason, Throwable throwable) {
+        GAMEMODES.clear();
+        GAMEMODES.addAll(FALLBACK_MODES);
+
+        if (throwable == null) {
+            TierTagger.getLogger().warn("{}; using fallback modes: {}", reason, FALLBACK_MODES.stream().map(GameMode::id).toList());
+        } else {
+            TierTagger.getLogger().warn("{}; using fallback modes: {}", reason, FALLBACK_MODES.stream().map(GameMode::id).toList(), throwable);
         }
     }
 

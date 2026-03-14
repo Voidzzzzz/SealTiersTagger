@@ -52,7 +52,7 @@ public class PlayerInfoScreen extends CloseableScreen {
             text.setY(rankingY);
 
             String date = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneOffset.UTC).format(Instant.ofEpochSecond(namedRanking.ranking().attained()));
-            Component tooltipText = Component.literal("Attained: " + date + "\nPoints: " + points(namedRanking.ranking())).withStyle(ChatFormatting.GRAY);
+            Component tooltipText = Component.literal("Attained: " + date).withStyle(ChatFormatting.GRAY);
             text.setTooltip(Tooltip.create(tooltipText));
             this.addRenderableWidget(text);
             rankingY += 11;
@@ -108,18 +108,8 @@ public class PlayerInfoScreen extends CloseableScreen {
         };
 
         return Component.empty()
-                .append(Component.literal("Global rank: "))
+                .append(Component.literal("SealTiers rank: "))
                 .append(Component.literal("#" + info.overall()).withStyle(s -> s.withColor(color)));
     }
 
-    private int points(PlayerInfo.Ranking ranking) {
-        return switch (ranking.tier()) {
-            case 1 -> ranking.pos() == 0 ? 60 : 45;
-            case 2 -> ranking.pos() == 0 ? 30 : 20;
-            case 3 -> ranking.pos() == 0 ? 10 : 6;
-            case 4 -> ranking.pos() == 0 ? 4 : 3;
-            case 5 -> ranking.pos() == 0 ? 2 : 1;
-            default -> 0;
-        };
-    }
 }

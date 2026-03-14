@@ -1,5 +1,7 @@
 package com.kevin.tiertagger.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.kevin.tiertagger.TierCache;
@@ -74,14 +76,35 @@ public record PlayerInfo(String uuid, String name, Map<String, Ranking> rankings
 
     public static CompletableFuture<Map<String, Ranking>> getRankings(HttpClient client, UUID uuid) {
         String endpoint = TierTagger.getManager().getConfig().getApiUrl() + "/v2/profile/" + uuid + "/rankings";
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint)).GET().build();
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
+                .header("Accept", "application/json")
+                .header("User-Agent", "TierTagger/SealTiers")
+                .GET()
+                .build();
 
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenApply(s -> TierTagger.GSON.fromJson(s, new TypeToken<Map<String, Ranking>>() {}))
+                .thenApply(PlayerInfo::parseRankings)
                 .whenComplete((i, t) -> {
                     if (t != null) TierTagger.getLogger().warn("Error getting player rankings ({})", uuid, t);
                 });
+    }
+
+    private static Map<String, Ranking> parseRankings(String body) {
+        JsonElement parsed = TierTagger.GSON.fromJson(body, JsonElement.class);
+
+        if (parsed == null || parsed.isJsonNull()) {
+            return Collections.emptyMap();
+        }
+
+        if (parsed.isJsonObject()) {
+            JsonObject object = parsed.getAsJsonObject();
+            if (object.has("rankings") && object.get("rankings").isJsonObject()) {
+                return TierTagger.GSON.fromJson(object.get("rankings"), new TypeToken<Map<String, Ranking>>() {});
+            }
+        }
+
+        return TierTagger.GSON.fromJson(parsed, new TypeToken<Map<String, Ranking>>() {});
     }
 
     public static CompletableFuture<PlayerInfo> search(HttpClient client, String query) {
@@ -110,12 +133,12 @@ public record PlayerInfo(String uuid, String name, Map<String, Ranking> rankings
     @Getter
     @AllArgsConstructor
     public enum PointInfo {
-        COMBAT_GRANDMASTER("Combat Grandmaster", 0xE6C622, 0xFDE047),
-        COMBAT_MASTER("Combat Master", 0xFBB03B, 0xFFD13A),
-        COMBAT_ACE("Combat Ace", 0xCD285C, 0xD65474),
-        COMBAT_SPECIALIST("Combat Specialist", 0xAD78D8, 0xC7A3E8),
-        COMBAT_CADET("Combat Cadet", 0x9291D9, 0xADACE2),
-        COMBAT_NOVICE("Combat Novice", 0x9291D9, 0xFFFFFF),
+        SEAL_GRANDMASTER("Seal Grandmaster", 0xE6C622, 0xFDE047),
+        SEAL_MASTER("Seal Master", 0xFBB03B, 0xFFD13A),
+        SEAL_ACE("Seal Ace", 0xCD285C, 0xD65474),
+        SEAL_SPECIALIST("Seal Specialist", 0xAD78D8, 0xC7A3E8),
+        SEAL_CADET("Seal Cadet", 0x9291D9, 0xADACE2),
+        SEAL_NOVICE("Seal Novice", 0x9291D9, 0xFFFFFF),
         ROOKIE("Rookie", 0x6C7178, 0x8B979C),
         UNRANKED("Unranked", 0xFFFFFF, 0xFFFFFF);
 
@@ -126,17 +149,17 @@ public record PlayerInfo(String uuid, String name, Map<String, Ranking> rankings
 
     public PointInfo getPointInfo() {
         if (this.points >= 400) {
-            return PointInfo.COMBAT_GRANDMASTER;
+            return PointInfo.SEAL_GRANDMASTER;
         } else if (this.points >= 250) {
-            return PointInfo.COMBAT_MASTER;
+            return PointInfo.SEAL_MASTER;
         } else if (this.points >= 100) {
-            return PointInfo.COMBAT_ACE;
+            return PointInfo.SEAL_ACE;
         } else if (this.points >= 50) {
-            return PointInfo.COMBAT_SPECIALIST;
+            return PointInfo.SEAL_SPECIALIST;
         } else if (this.points >= 20) {
-            return PointInfo.COMBAT_CADET;
+            return PointInfo.SEAL_CADET;
         } else if (this.points >= 10) {
-            return PointInfo.COMBAT_NOVICE;
+            return PointInfo.SEAL_NOVICE;
         } else if (this.points >= 1) {
             return PointInfo.ROOKIE;
         } else {

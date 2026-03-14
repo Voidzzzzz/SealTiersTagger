@@ -6,7 +6,7 @@
   "description": "Display player's PvP Tiers in their nametag!",
   "authors": ["uku", "netiyiy (original creator)"],
   "contact": {
-    "sources": "https://github.com/mctiers-dev/TierTagger.git"
+    "sources": "https://sealtiers.com"
   },
   "license": "MPL-2.0",
   "icon": "assets/tier-tagger/icon.png",
